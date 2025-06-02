@@ -1,0 +1,59 @@
+@startuml
+actor Vehicle
+participant "Webcam" as Webcam
+participant "car_entry.py" as System
+participant "YOLO Model" as YOLO
+participant "Tesseract" as Tesseract
+participant "Arduino" as Arduino
+participant "plates_log.csv" as CSV\
+
+Vehicle -> Webcam: Vehicle approaches (distance <= 50 cm)
+Webcam -> System: Capture frame
+System -> System: Check mock ultrasonic distance
+alt Distance <= 50 cm
+    System -> YOLO: Process frame for plate detection
+    YOLO --> System: Return bounding boxes
+    loop for each bounding box
+        System -> System: Extract ROI (plate image)
+        alt ROI valid (width >= 50, height >= 20)
+            System -> Tesseract: Perform OCR on plate image
+            Tesseract --> System: Return plate text
+            System -> System: Extract and validate plate (e.g., RA123H)
+            alt Plate is valid
+                System -> System: Add plate to buffer
+                alt Buffer has >= 3 readings
+                    System -> System: Get most common plate
+                    alt Consistent readings (count >= 2)
+                        System -> CSV: Check for active entry
+                        CSV --> System: Return active entry status
+                        alt No active entry
+                            System -> CSV: Log plate, Payment Status=0, Entry Timestamp, Amount=""
+                            CSV --> System: Confirm log
+                            System -> Webcam: Save plate image
+                            System -> Arduino: Send '1' (open gate)
+                            Arduino --> System: Gate opened
+                            System -> System: Wait 15 seconds
+                            System -> Arduino: Send '0' (close gate)
+                            Arduino --> System: Gate closed
+                            System -> System: Update last saved plate and time
+                        else Active entry exists
+                            System -> System: Skip (duplicate entry)
+                        end alt
+                    else Not enough consistent readings
+                        System -> System: Skip
+                    end alt
+                end alt
+            else Invalid plate
+                System -> System: Skip
+            end alt
+        else ROI too small
+            System -> System: Skip
+        end alt
+    end loop
+end alt
+System -> Webcam: Display annotated frame
+Vehicle -> System: Press 'q' to quit (optional)
+System -> Webcam: Release camera
+System -> Arduino: Close connection
+System -> System: Destroy windows
+@enduml
