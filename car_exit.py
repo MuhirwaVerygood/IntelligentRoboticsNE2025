@@ -10,6 +10,10 @@ from collections import Counter
 import random
 import re
 from datetime import datetime
+from colorama import init, Fore, Style
+
+# Initialize colorama
+init()
 
 # Custom exception
 class CriticalError(Exception):
@@ -21,7 +25,7 @@ try:
     if not os.path.isfile(pytesseract.pytesseract.tesseract_cmd):
         raise FileNotFoundError("Tesseract executable not found")
 except FileNotFoundError as e:
-    print(f"[ERROR] {e}")
+    print(f"{Fore.RED}[ERROR] {e}{Style.RESET_ALL}")
     with open("serial_log.txt", "a") as log_file:
         log_file.write(f"{datetime.now()}: {e}\n")
         log_file.flush()
@@ -31,7 +35,7 @@ model = None
 try:
     model = YOLO(r'best.pt')
 except FileNotFoundError as e:
-    print(f"[ERROR] YOLO model file not found: {e}")
+    print(f"{Fore.RED}[ERROR] YOLO model file not found: {e}{Style.RESET_ALL}")
     with open("serial_log.txt", "a") as log_file:
         log_file.write(f"{datetime.now()}: YOLO model file not found: {e}\n")
         log_file.flush()
@@ -54,7 +58,51 @@ def get_db_connection():
     except psycopg2.Error as e:
         raise CriticalError(f"Database connection failed: {e}")
 
-# Log event to logs table
+# Initialize database
+def initialize_db():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS parking_logs (
+                id SERIAL PRIMARY KEY,
+                plate_number VARCHAR(10) NOT NULL,
+                payment_status BOOLEAN NOT NULL DEFAULT FALSE,
+                entry_timestamp TIMESTAMP NOT NULL,
+                exit_timestamp TIMESTAMP,
+                amount NUMERIC(10, 2),
+                exited BOOLEAN NOT NULL DEFAULT FALSE,
+                CONSTRAINT chk_plate CHECK (plate_number ~ '^[A-Z]{2,3}[0-9]{3}[A-Z]$')
+            )
+        """)
+        cursor.execute("""
+            DO $$ BEGIN
+                CREATE TYPE event_type AS ENUM ('Entry', 'Exit', 'Payment', 'Unauthorized Exit Attempt', 'Error');
+            EXCEPTION
+                WHEN duplicate_object THEN NULL;
+            END $$;
+        """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS logs (
+                id SERIAL PRIMARY KEY,
+                plate_number VARCHAR(10) NOT NULL,
+                event_type event_type NOT NULL,
+                event_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                message VARCHAR(255) NOT NULL
+            )
+        """)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print(f"{Fore.GREEN}[INIT] Database initialized{Style.RESET_ALL}")
+        with open("serial_log.txt", "a") as log_file:
+            log_file.write(f"{datetime.now()}: Database initialized\n")
+            log_file.flush()
+    except psycopg2.Error as e:
+        print(f"{Fore.RED}[ERROR] Database initialization failed: {e}{Style.RESET_ALL}")
+        raise CriticalError(f"Database initialization failed: {e}")
+
+# Log event
 def log_event(plate, event_type, message, conn):
     try:
         if not conn or conn.closed:
@@ -85,7 +133,7 @@ def is_valid_plate(plate):
     except Exception as e:
         raise CriticalError(f"Plate validation error: {e}")
 
-# Check if plate has an unpaid record
+# Check unpaid record
 def has_unpaid_record(plate, conn):
     try:
         if not is_valid_plate(plate):
@@ -101,23 +149,6 @@ def has_unpaid_record(plate, conn):
     except psycopg2.Error as e:
         conn.rollback()
         raise CriticalError(f"Failed to check unpaid record for {plate}: {e}")
-
-# Check if plate has already exited
-def has_exited(plate, conn):
-    try:
-        if not is_valid_plate(plate):
-            raise CriticalError(f"Invalid plate format: {plate}")
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT COUNT(*) FROM parking_logs WHERE plate_number = %s AND exited = TRUE",
-            (plate,)
-        )
-        count = cursor.fetchone()[0]
-        cursor.close()
-        return count > 0
-    except psycopg2.Error as e:
-        conn.rollback()
-        raise CriticalError(f"Failed to check exited status for {plate}: {e}")
 
 # Check payment status
 def is_payment_complete(plate, conn):
@@ -136,7 +167,7 @@ def is_payment_complete(plate, conn):
         conn.rollback()
         raise CriticalError(f"Failed to check payment status for {plate}: {e}")
 
-# Check if plate has a valid record
+# Check valid record
 def has_valid_record(plate, conn):
     try:
         if not is_valid_plate(plate):
@@ -153,7 +184,7 @@ def has_valid_record(plate, conn):
         conn.rollback()
         raise CriticalError(f"Failed to check record for {plate}: {e}")
 
-# Update exit timestamp and exited status
+# Update exit timestamp
 def update_exit_timestamp(plate, conn):
     try:
         if not is_valid_plate(plate):
@@ -165,15 +196,15 @@ def update_exit_timestamp(plate, conn):
         )
         result = cursor.fetchone()
         if not result:
-            print(f"[INFO] No valid paid and non-exited record for {plate}")
+            print(f"{Fore.RED}[INFO] No valid paid and non-exited record for {plate}{Style.RESET_ALL}")
             log_event(plate, "Exit", f"No paid and non-exited record for {plate}", conn)
             cursor.close()
             return False
 
         entry_id, exit_timestamp, exited = result
-        if exit_timestamp or exited:
-            print(f"[INFO] Exit already recorded for {plate}")
-            log_event(plate, "Exit", f"Exit already recorded for {plate}", conn)
+        if exited:
+            print(f"{Fore.RED}[INFO] Exit already recorded for {plate} (ID: {entry_id}){Style.RESET_ALL}")
+            log_event(plate, "Exit", f"Exit already recorded for {plate} (ID: {entry_id})", conn)
             cursor.close()
             return False
 
@@ -182,16 +213,16 @@ def update_exit_timestamp(plate, conn):
             (datetime.now(), entry_id)
         )
         conn.commit()
-        log_event(plate, "Exit", f"Vehicle {plate} exited", conn)
+        log_event(plate, "Exit", f"Vehicle {plate} exited (ID: {entry_id})", conn)
         cursor.close()
-        print(f"[CSV] Updated exit timestamp and exited status for {plate}")
+        print(f"{Fore.GREEN}[INFO] Updated exit timestamp for {plate} (ID: {entry_id}){Style.RESET_ALL}")
         with open("serial_log.txt", "a") as log_file:
-            log_file.write(f"{datetime.now()}: Updated exit timestamp and exited status for {plate}\n")
+            log_file.write(f"{datetime.now()}: Updated exit timestamp for {plate} (ID: {entry_id})\n")
             log_file.flush()
         return True
     except psycopg2.Error as e:
         conn.rollback()
-        raise CriticalError(f"Failed to update exit timestamp: {e}")
+        raise CriticalError(f"Failed to update exit timestamp for {plate}: {e}")
 
 # Detect Arduino port
 def detect_arduino_port():
@@ -203,7 +234,7 @@ def detect_arduino_port():
             log_file.flush()
         for port in ports:
             if "Arduino" in port.description or "COM5" in port.description or "USB-SERIAL" in port.description:
-                print(f"[INFO] Opening gate for {port.device} ({port.description})")
+                print(f"{Fore.GREEN}[INFO] Selected Arduino port: {port.device} ({port.description}){Style.RESET_ALL}")
                 return port.device
         raise CriticalError("COM5 not found for gate control")
     except Exception as e:
@@ -217,28 +248,39 @@ def mock_ultrasonic_distance():
 def trigger_buzzer(ser):
     try:
         if ser and ser.is_open:
-            ser.write(b'b')
+            ser.write(b'2')
             ser.flush()
-            print("[BUZZER] Buzzer activated")
+            print(f"{Fore.RED}[BUZZER] Buzzer activated{Style.RESET_ALL}")
             with open("serial_log.txt", "a") as log_file:
                 log_file.write(f"{datetime.now()}: Buzzer activated\n")
                 log_file.flush()
-            time.sleep(2)
+            time.sleep(1.5)  # Match Arduino's 3x(250ms on + 250ms off)
+            print(f"{Fore.RED}[BUZZER] Buzzer deactivated{Style.RESET_ALL}")
+            with open("serial_log.txt", "a") as log_file:
+                log_file.write(f"{datetime.now()}: Buzzer deactivated\n")
+                log_file.flush()
     except serial.SerialException as e:
-        print(f"[ERROR] Failed to trigger buzzer: {e}")
+        print(f"{Fore.RED}[ERROR] Failed to trigger buzzer: {e}{Style.RESET_ALL}")
         with open("serial_log.txt", "a") as log_file:
             log_file.write(f"{datetime.now()}: Failed to trigger buzzer: {e}\n")
             log_file.flush()
 
 # Initialize
+try:
+    initialize_db()
+except CriticalError as e:
+    print(f"{Fore.RED}[ERROR] {e}{Style.RESET_ALL}")
+    with open("serial_log.txt", "a") as log_file:
+        log_file.write(f"{datetime.now()}: {e}\n")
+        log_file.flush()
+    exit()
+
 conn = None
 try:
     conn = get_db_connection()
-    with open("serial_log.txt", "a") as log_file:
-        log_file.write(f"{datetime.now()}: Program started\n")
-        log_file.flush()
+    print(f"{Fore.GREEN}[INFO] Database connected{Style.RESET_ALL}")
 except CriticalError as e:
-    print(f"[ERROR] {e}")
+    print(f"{Fore.RED}[ERROR] {e}{Style.RESET_ALL}")
     with open("serial_log.txt", "a") as log_file:
         log_file.write(f"{datetime.now()}: {e}\n")
         log_file.flush()
@@ -249,20 +291,20 @@ try:
     arduino_port = detect_arduino_port()
     if not arduino_port:
         raise CriticalError("Arduino not detected")
-    print(f"[CONNECTED] Arduino on {arduino_port}")
+    print(f"{Fore.GREEN}[CONNECTED] Arduino on {arduino_port}{Style.RESET_ALL}")
     with open("serial_log.txt", "a") as log_file:
         log_file.write(f"{datetime.now()}: Connected to Arduino on {arduino_port}\n")
         log_file.flush()
     arduino = serial.Serial(arduino_port, 9600, timeout=3)
     time.sleep(5)
 except CriticalError as e:
-    print(f"[ERROR] {e}")
+    print(f"{Fore.RED}[ERROR] {e}{Style.RESET_ALL}")
     log_event(None, "Error", str(e), conn)
     if conn:
         conn.close()
     exit()
 except serial.SerialException as e:
-    print(f"[ERROR] Failed to connect to Arduino: {e}")
+    print(f"{Fore.RED}[ERROR] Failed to connect to Arduino: {e}{Style.RESET_ALL}")
     log_event(None, "Error", f"Failed to connect to Arduino: {e}", conn)
     if conn:
         conn.close()
@@ -274,7 +316,7 @@ try:
     if not cap.isOpened():
         raise CriticalError("Cannot open webcam")
 except CriticalError as e:
-    print(f"[ERROR] {e}")
+    print(f"{Fore.RED}[ERROR] {e}{Style.RESET_ALL}")
     log_event(None, "Error", str(e), conn)
     trigger_buzzer(arduino)
     if arduino and arduino.is_open:
@@ -284,7 +326,7 @@ except CriticalError as e:
     exit()
 
 plate_buffer = []
-print("[INFO] Exit system started")
+print(f"{Fore.GREEN}[INFO] Exit system started{Style.RESET_ALL}")
 with open("serial_log.txt", "a") as log_file:
     log_file.write(f"{datetime.now()}: Exit system started\n")
     log_file.flush()
@@ -305,7 +347,7 @@ try:
                     for box in result.boxes:
                         x1, y1, x2, y2 = map(int, box.xyxy[0])
                         if x2 <= x1 or y2 <= y1 or (x2 - x1) < 50 or (y2 - y1) < 20:
-                            print("[WARNING] Invalid ROI, skipping")
+                            print(f"{Fore.RED}[WARNING] Invalid ROI, skipping{Style.RESET_ALL}")
                             continue
 
                         plate_img = frame[y1:y2, x1:x2]
@@ -324,14 +366,15 @@ try:
                             start_idx = plate_text.find("RA")
                             plate_candidate = plate_text[start_idx:start_idx + 7]
                             if is_valid_plate(plate_candidate):
-                                print(f"[VALID] Plate Detected: {plate_candidate}")
+                                print(f"{Fore.GREEN}[VALID] Plate Detected: {plate_candidate}{Style.RESET_ALL}")
                                 with open("serial_log.txt", "a") as log_file:
                                     log_file.write(f"{datetime.now()}: Valid plate detected: {plate_candidate}\n")
                                     log_file.flush()
 
                                 if not has_valid_record(plate_candidate, conn):
-                                    print(f"[SKIPPED] No active entry or paid record for {plate_candidate}")
-                                    log_event(plate_candidate, "Exit", f"No record for {plate_candidate}", conn)
+                                    print(f"{Fore.RED}[DENIED] No active entry or paid record for {plate_candidate}{Style.RESET_ALL}")
+                                    log_event(plate_candidate, "Unauthorized Exit Attempt", f"No record for {plate_candidate}", conn)
+                                    trigger_buzzer(arduino)
                                     continue
 
                                 plate_buffer.append(plate_candidate)
@@ -341,51 +384,41 @@ try:
                                     plate, count = most_common[0], most_common[1]
 
                                     if count < 2:
-                                        print("[SKIPPED] Not enough consistent readings")
+                                        print(f"{Fore.RED}[SKIPPED] Not enough consistent readings{Style.RESET_ALL}")
                                         continue
 
                                     plate_buffer.clear()
 
                                     if has_unpaid_record(plate, conn):
-                                        print(f"[ACCESS DENIED] Unpaid record found for {plate}")
-                                        log_event(plate, "Unauthorized Exit Attempt", f"Unpaid record for {plate}, exit denied", conn)
+                                        print(f"{Fore.RED}[DENIED] Unpaid record found for {plate}{Style.RESET_ALL}")
+                                        log_event(plate, "Unauthorized Exit Attempt", f"Unpaid record for {plate}", conn)
                                         trigger_buzzer(arduino)
-                                        raise CriticalError(f"Unpaid record for {plate}, exit denied")
-
-                                    if has_exited(plate, conn):
-                                        print(f"[ACCESS DENIED] Vehicle {plate} has already exited")
-                                        log_event(plate, "Unauthorized Exit Attempt", f"Vehicle {plate} has already exited", conn)
-                                        trigger_buzzer(arduino)
-                                        raise CriticalError(f"Vehicle {plate} has already exited")
+                                        continue
 
                                     if is_payment_complete(plate, conn):
-                                        print(f"[ACCESS GRANTED] Payment complete for {plate}")
+                                        print(f"{Fore.GREEN}[GRANTED] Payment complete for {plate}{Style.RESET_ALL}")
                                         try:
                                             arduino.write(b'1')
-                                            print("[GATE] Opening gate (sent '1')")
+                                            print(f"{Fore.GREEN}[GATE] Opening gate (sent '1'){Style.RESET_ALL}")
                                             with open("serial_log.txt", "a") as log_file:
                                                 log_file.write(f"{datetime.now()}: Opening gate (sent '1')\n")
                                                 log_file.flush()
                                             time.sleep(15)
                                             arduino.write(b'0')
-                                            print("[GATE] Closing gate (sent '0')")
+                                            print(f"{Fore.GREEN}[GATE] Closing gate (sent '0'){Style.RESET_ALL}")
                                             with open("serial_log.txt", "a") as log_file:
                                                 log_file.write(f"{datetime.now()}: Closing gate (sent '0')\n")
                                                 log_file.flush()
                                             if update_exit_timestamp(plate, conn):
-                                                print("[EXIT] Gate closed and exit recorded, stopping application")
+                                                print(f"{Fore.GREEN}[EXIT] Exit recorded for {plate}{Style.RESET_ALL}")
                                                 log_event(plate, "Exit", "Gate closed and exit recorded", conn)
-                                                with open("serial_log.txt", "a") as log_file:
-                                                    log_file.write(f"{datetime.now()}: Gate closed and exit recorded, stopping application\n")
-                                                    log_file.flush()
-                                                break
                                         except serial.SerialException as e:
                                             raise CriticalError(f"Arduino communication failed: {e}")
                                     else:
-                                        print(f"[ACCESS DENIED] No paid and non-exited record for {plate}")
+                                        print(f"{Fore.RED}[DENIED] No paid and non-exited record for {plate}{Style.RESET_ALL}")
                                         log_event(plate, "Unauthorized Exit Attempt", f"No paid and non-exited record for {plate}", conn)
                                         trigger_buzzer(arduino)
-                                        raise CriticalError(f"No paid and non-exited record for {plate}")
+                                        continue
 
                         cv2.imshow("Plate", plate_img)
                         cv2.imshow("Processed", thresh)
@@ -394,41 +427,43 @@ try:
             cv2.imshow("Exit Webcam Feed", annotated_frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                print("[EXIT] Program terminated by user")
+                print(f"{Fore.RED}[EXIT] Program terminated by user{Style.RESET_ALL}")
                 log_event(None, "Error", "Program terminated by user", conn)
                 break
         except CriticalError as e:
-            print(f"[ERROR] {e}")
+            print(f"{Fore.RED}[ERROR] {e}{Style.RESET_ALL}")
             log_event(None, "Error", str(e), conn)
             trigger_buzzer(arduino)
-            break
+            continue
         except Exception as e:
-            print(f"[ERROR] Unexpected error in main loop: {type(e).__name__}: {str(e)}")
-            log_event(None, "Error", f"Unexpected error in main loop: {type(e).__name__}: {str(e)}", conn)
+            print(f"{Fore.RED}[ERROR] Unexpected error: {type(e).__name__}: {str(e)}{Style.RESET_ALL}")
+            log_event(None, "Error", f"Unexpected error: {type(e).__name__}: {str(e)}", conn)
             trigger_buzzer(arduino)
-            break
+            continue
 finally:
     if cap:
         cap.release()
     if arduino and arduino.is_open:
         try:
             arduino.close()
+            print(f"{Fore.GREEN}[CLEANUP] Serial port closed{Style.RESET_ALL}")
             with open("serial_log.txt", "a") as log_file:
                 log_file.write(f"{datetime.now()}: Serial port closed\n")
                 log_file.flush()
         except serial.SerialException as e:
-            print(f"[ERROR] Failed to close Arduino connection: {e}")
+            print(f"{Fore.RED}[ERROR] Failed to close Arduino connection: {e}{Style.RESET_ALL}")
             log_event(None, "Error", f"Failed to close Arduino connection: {e}", conn)
     if conn:
         try:
             conn.close()
+            print(f"{Fore.GREEN}[CLEANUP] Database connection closed{Style.RESET_ALL}")
             with open("serial_log.txt", "a") as log_file:
                 log_file.write(f"{datetime.now()}: Database connection closed\n")
                 log_file.flush()
         except psycopg2.Error as e:
-            print(f"[ERROR] Failed to close database connection: {e}")
+            print(f"{Fore.RED}[ERROR] Failed to close database connection: {e}{Style.RESET_ALL}")
     cv2.destroyAllWindows()
-    print("[CLEANUP] Application terminated")
+    print(f"{Fore.GREEN}[CLEANUP] Application terminated{Style.RESET_ALL}")
     with open("serial_log.txt", "a") as log_file:
         log_file.write(f"{datetime.now()}: Application terminated\n")
         log_file.flush()
