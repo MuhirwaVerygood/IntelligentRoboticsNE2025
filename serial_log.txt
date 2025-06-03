@@ -1258,3 +1258,167 @@
 2025-06-02 18:42:29.421068: Serial port closed
 2025-06-02 18:42:29.421068: Database connection closed
 2025-06-02 18:42:29.441835: Application terminated
+2025-06-02 18:51:04.776183: Program started
+2025-06-02 18:51:04.781183: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:51:04.781183: Serial connection failed on COM4: could not open port 'COM4': PermissionError(13, 'Access is denied.', None, 5)
+2025-06-02 18:51:05.784294: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:51:05.784294: Serial connection failed on COM4: could not open port 'COM4': PermissionError(13, 'Access is denied.', None, 5)
+2025-06-02 18:51:06.787434: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:51:06.787434: Serial connection failed on COM4: could not open port 'COM4': PermissionError(13, 'Access is denied.', None, 5)
+2025-06-02 18:51:07.790986: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:51:07.790986: Serial connection failed on COM4: could not open port 'COM4': PermissionError(13, 'Access is denied.', None, 5)
+2025-06-02 18:51:08.794351: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:51:08.794351: Serial connection failed on COM4: could not open port 'COM4': PermissionError(13, 'Access is denied.', None, 5)
+2025-06-02 18:51:09.795402: Failed to connect to Arduino after 5 attempts
+2025-06-02 18:51:14.798510: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:51:14.798510: Serial connection failed on COM4: could not open port 'COM4': PermissionError(13, 'Access is denied.', None, 5)
+2025-06-02 18:51:15.087922: Program terminated by user
+2025-06-02 18:51:15.088463: Database connection closed
+2025-06-02 18:51:15.088463: Application terminated
+2025-06-02 18:51:48.731082: Program started
+2025-06-02 18:51:48.731082: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:51:54.744978: Connected to COM4
+2025-06-02 18:51:56.377588: Received: ==== PAYMENT MODE RFID ====
+2025-06-02 18:51:56.377588: Raw input: ==== PAYMENT MODE RFID ====
+2025-06-02 18:51:56.377588: Parsed parts: ['==== PAYMENT MODE RFID ====']
+2025-06-02 18:51:56.479669: Received: Place your card near the reader...
+2025-06-02 18:51:56.479669: Raw input: Place your card near the reader...
+2025-06-02 18:51:56.479669: Parsed parts: ['Place your card near the reader...']
+2025-06-02 18:51:56.622703: Unexpected error in main loop: 'charmap' codec can't encode character '\U0001f4f6' in position 38: character maps to <undefined>
+2025-06-02 18:51:57.623340: Received: [INFO] Sending to Python: RAF687D,96365
+2025-06-02 18:51:57.623340: Raw input: [INFO] Sending to Python: RAF687D,96365
+2025-06-02 18:51:57.624298: Parsed parts: ['[INFO] Sending to Python: RAF687D', '96365']
+2025-06-02 18:51:57.725467: Received: RAF687D,96365
+2025-06-02 18:51:57.725467: Raw input: RAF687D,96365
+2025-06-02 18:51:57.725467: Parsed parts: ['RAF687D', '96365']
+2025-06-02 18:51:57.769585: Logged event: Payment for RAF687D - Payment attempt for RAF687D failed: no unpaid entry
+2025-06-02 18:51:57.870774: Received: READY
+2025-06-02 18:51:57.870774: Raw input: READY
+2025-06-02 18:51:57.870774: Parsed parts: ['READY']
+2025-06-02 18:52:06.562219: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:52:06.562219: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:52:06.662973: Received: READY
+2025-06-02 18:52:06.662973: Raw input: READY
+2025-06-02 18:52:06.662973: Parsed parts: ['READY']
+2025-06-02 18:52:16.624858: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:52:16.624858: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:52:16.725480: Received: READY
+2025-06-02 18:52:16.725480: Raw input: READY
+2025-06-02 18:52:16.725480: Parsed parts: ['READY']
+2025-06-02 18:52:26.695090: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:52:26.695456: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:52:26.795823: Received: [ERROR] Retry failed. Aborting.
+2025-06-02 18:52:26.796817: Raw input: [ERROR] Retry failed. Aborting.
+2025-06-02 18:52:26.796817: Parsed parts: ['[ERROR] Retry failed. Aborting.']
+2025-06-02 18:53:31.094495: Program terminated by user
+2025-06-02 18:53:31.095497: Serial port closed
+2025-06-02 18:53:31.095497: Database connection closed
+2025-06-02 18:53:31.095497: Application terminated
+2025-06-02 18:54:56.059575: Program started
+2025-06-02 18:54:56.063513: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:55:02.065629: Connected to COM4
+2025-06-02 18:55:03.698588: Received: ==== PAYMENT MODE RFID ====
+2025-06-02 18:55:03.699592: Raw input: ==== PAYMENT MODE RFID ====
+2025-06-02 18:55:03.699592: Parsed parts: ['==== PAYMENT MODE RFID ====']
+2025-06-02 18:55:03.803014: Received: Place your card near the reader...
+2025-06-02 18:55:03.803014: Raw input: Place your card near the reader...
+2025-06-02 18:55:03.803923: Parsed parts: ['Place your card near the reader...']
+2025-06-02 18:55:03.906704: Unexpected error in main loop: 'charmap' codec can't encode character '\U0001f4f6' in position 38: character maps to <undefined>
+2025-06-02 18:55:04.909455: Received: [INFO] Sending to Python: RAF687D,96365
+2025-06-02 18:55:04.909455: Raw input: [INFO] Sending to Python: RAF687D,96365
+2025-06-02 18:55:04.910351: Parsed parts: ['[INFO] Sending to Python: RAF687D', '96365']
+2025-06-02 18:55:05.012617: Received: RAF687D,96365
+2025-06-02 18:55:05.013566: Raw input: RAF687D,96365
+2025-06-02 18:55:05.014043: Parsed parts: ['RAF687D', '96365']
+2025-06-02 18:55:05.052299: Logged event: Payment for RAF687D - Payment attempt for RAF687D failed: no unpaid entry
+2025-06-02 18:55:05.153320: Received: READY
+2025-06-02 18:55:05.153320: Raw input: READY
+2025-06-02 18:55:05.154334: Parsed parts: ['READY']
+2025-06-02 18:55:13.916673: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:55:13.917663: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:55:14.019683: Received: READY
+2025-06-02 18:55:14.020594: Raw input: READY
+2025-06-02 18:55:14.020594: Parsed parts: ['READY']
+2025-06-02 18:55:23.990124: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:55:23.990124: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:55:24.092087: Received: READY
+2025-06-02 18:55:24.093082: Raw input: READY
+2025-06-02 18:55:24.093082: Parsed parts: ['READY']
+2025-06-02 18:55:32.759620: Program terminated by user
+2025-06-02 18:55:32.760623: Serial port closed
+2025-06-02 18:55:32.761622: Database connection closed
+2025-06-02 18:55:32.761622: Application terminated
+2025-06-02 18:55:33.486305: Program started
+2025-06-02 18:55:33.490289: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:55:39.493625: Connected to COM4
+2025-06-02 18:55:41.125520: Received: ==== PAYMENT MODE RFID ====
+2025-06-02 18:55:41.125520: Raw input: ==== PAYMENT MODE RFID ====
+2025-06-02 18:55:41.127033: Parsed parts: ['==== PAYMENT MODE RFID ====']
+2025-06-02 18:55:41.228166: Received: Place your card near the reader...
+2025-06-02 18:55:41.228166: Raw input: Place your card near the reader...
+2025-06-02 18:55:41.229149: Parsed parts: ['Place your card near the reader...']
+2025-06-02 18:55:41.330831: Unexpected error in main loop: 'charmap' codec can't encode character '\U0001f4f6' in position 38: character maps to <undefined>
+2025-06-02 18:55:42.332672: Received: [INFO] Sending to Python: RAF687D,96365
+2025-06-02 18:55:42.333661: Raw input: [INFO] Sending to Python: RAF687D,96365
+2025-06-02 18:55:42.334661: Parsed parts: ['[INFO] Sending to Python: RAF687D', '96365']
+2025-06-02 18:55:42.435773: Received: RAF687D,96365
+2025-06-02 18:55:42.435773: Raw input: RAF687D,96365
+2025-06-02 18:55:42.435773: Parsed parts: ['RAF687D', '96365']
+2025-06-02 18:55:42.448967: Logged event: Payment for RAF687D - Payment attempt for RAF687D failed: no unpaid entry
+2025-06-02 18:55:42.550498: Received: READY
+2025-06-02 18:55:42.550498: Raw input: READY
+2025-06-02 18:55:42.551497: Parsed parts: ['READY']
+2025-06-02 18:55:51.311777: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:55:51.311777: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:55:51.413388: Received: READY
+2025-06-02 18:55:51.413388: Raw input: READY
+2025-06-02 18:55:51.414380: Parsed parts: ['READY']
+2025-06-02 18:56:01.375803: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:56:01.376808: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:56:01.478297: Received: READY
+2025-06-02 18:56:01.479283: Raw input: READY
+2025-06-02 18:56:01.479283: Parsed parts: ['READY']
+2025-06-02 18:56:11.451616: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:56:11.451616: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:56:11.552645: Received: [ERROR] Retry failed. Aborting.
+2025-06-02 18:56:11.552645: Raw input: [ERROR] Retry failed. Aborting.
+2025-06-02 18:56:11.553555: Parsed parts: ['[ERROR] Retry failed. Aborting.']
+2025-06-02 18:56:21.048409: Program terminated by user
+2025-06-02 18:56:21.049411: Serial port closed
+2025-06-02 18:56:21.050411: Database connection closed
+2025-06-02 18:56:21.050411: Application terminated
+2025-06-02 18:56:21.968419: Program started
+2025-06-02 18:56:21.972420: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:56:27.976241: Connected to COM4
+2025-06-02 18:56:29.607880: Received: ==== PAYMENT MODE RFID ====
+2025-06-02 18:56:29.607880: Raw input: ==== PAYMENT MODE RFID ====
+2025-06-02 18:56:29.608827: Parsed parts: ['==== PAYMENT MODE RFID ====']
+2025-06-02 18:56:29.710683: Received: Place your card near the reader...
+2025-06-02 18:56:29.711674: Raw input: Place your card near the reader...
+2025-06-02 18:56:29.711674: Parsed parts: ['Place your card near the reader...']
+2025-06-02 18:56:29.814064: Unexpected error in main loop: 'charmap' codec can't encode character '\U0001f4f6' in position 38: character maps to <undefined>
+2025-06-02 18:56:30.818708: Received: [INFO] Sending to Python: RAF687D,96365
+2025-06-02 18:56:30.819709: Raw input: [INFO] Sending to Python: RAF687D,96365
+2025-06-02 18:56:30.819709: Parsed parts: ['[INFO] Sending to Python: RAF687D', '96365']
+2025-06-02 18:56:30.923867: Received: RAF687D,96365
+2025-06-02 18:56:30.923867: Raw input: RAF687D,96365
+2025-06-02 18:56:30.924868: Parsed parts: ['RAF687D', '96365']
+2025-06-02 18:56:30.972871: Logged event: Payment for RAF687D - Payment attempt for RAF687D failed: no unpaid entry
+2025-06-02 18:56:31.073868: Received: READY
+2025-06-02 18:56:31.074869: Raw input: READY
+2025-06-02 18:56:31.075872: Parsed parts: ['READY']
+2025-06-02 18:56:39.842423: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:56:39.842423: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:56:39.945709: Received: READY
+2025-06-02 18:56:39.946708: Raw input: READY
+2025-06-02 18:56:39.946708: Parsed parts: ['READY']
+2025-06-02 18:56:49.844144: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:56:49.844144: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:56:49.956567: Received: READY
+2025-06-02 18:56:49.956567: Raw input: READY
+2025-06-02 18:56:49.956567: Parsed parts: ['READY']
+2025-06-02 18:56:59.949224: Received: [TIMEOUT] No response from PC.
+2025-06-02 18:56:59.950286: Raw input: [TIMEOUT] No response from PC.
+2025-06-02 18:57:00.051829: Received: [ERROR] Retry failed. Aborting.
+2025-06-02 18:57:00.052810: Raw input: [ERROR] Retry failed. Aborting.
+2025-06-02 18:57:00.052810: Parsed parts: ['[ERROR] Retry failed. Aborting.']
