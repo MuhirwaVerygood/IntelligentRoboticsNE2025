@@ -745,3 +745,35 @@
 2025-06-02 16:16:23.630398: Serial port closed
 2025-06-02 16:16:23.630905: Database connection closed
 2025-06-02 16:16:23.648477: Application terminated
+2025-06-02 16:46:21.833570: Database initialized
+2025-06-02 16:46:21.874569: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 16:46:21.874569: Connected to Arduino on COM5
+2025-06-02 16:46:24.885399: Entry system started
+2025-06-02 16:46:27.851920: Valid plate detected: RAF687D
+2025-06-02 16:46:27.857011: Image saved: plates\RAF687D_20250602_164627.jpg
+2025-06-02 16:46:30.275897: Valid plate detected: RAF687D
+2025-06-02 16:46:30.278260: Image saved: plates\RAF687D_20250602_164630.jpg
+2025-06-02 16:46:31.036567: Valid plate detected: RAF687D
+2025-06-02 16:46:31.037567: Image saved: plates\RAF687D_20250602_164631.jpg
+2025-06-02 16:46:31.049570: Logged event: Entry for RAF687D - Vehicle RAF687D entered
+2025-06-02 16:46:31.049570: Opening gate (sent '1')
+2025-06-02 16:46:46.050280: Closing gate (sent '0')
+2025-06-02 16:46:49.311136: Serial port closed
+2025-06-02 16:46:49.312156: Database connection closed
+2025-06-02 16:46:49.332682: Application terminated
+2025-06-02 16:47:11.929071: Database initialized
+2025-06-02 16:47:11.976037: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 16:47:11.976037: Connected to Arduino on COM5
+2025-06-02 16:47:14.904145: Entry system started
+2025-06-02 16:47:18.145118: Valid plate detected: RAF987Y
+2025-06-02 16:47:18.150185: Image saved: plates\RAF987Y_20250602_164718.jpg
+2025-06-02 16:47:22.584846: Valid plate detected: RAF987Y
+2025-06-02 16:47:22.586865: Image saved: plates\RAF987Y_20250602_164722.jpg
+2025-06-02 16:47:23.292977: Valid plate detected: RAF987Y
+2025-06-02 16:47:23.293977: Image saved: plates\RAF987Y_20250602_164723.jpg
+2025-06-02 16:47:23.297005: Logged event: Entry for RAF987Y - Vehicle RAF987Y entered
+2025-06-02 16:47:23.297005: Opening gate (sent '1')
+2025-06-02 16:47:38.298557: Closing gate (sent '0')
+2025-06-02 16:48:23.278050: Serial port closed
+2025-06-02 16:48:23.278050: Database connection closed
+2025-06-02 16:48:23.304279: Application terminated

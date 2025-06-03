@@ -5,31 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parking System Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="bg-gray-100">
     <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-4">Parking System Real-Time Logs</h1>
-        <div id="logs" class="bg-white shadow rounded-lg p-4">
-            <table class="w-full table-auto">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="px-4 py-2">Plate Number</th>
-                        <th class="px-4 py-2">Event Type</th>
-                        <th class="px-4 py-2">Timestamp</th>
-                        <th class="px-4 py-2">Message</th>
-                    </tr>
-                </thead>
-                <tbody id="logsTableBody"></tbody>
-            </table>
+        <h1 class="text-3xl font-bold mb-6 text-center">Parking System Real-Time Dashboard</h1>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Bar Chart: Events by Type -->
+            <div class="bg-white shadow rounded-lg p-4">
+                <h2 class="text-lg font-semibold mb-4">Events by Type</h2>
+                <canvas id="eventTypeChart" height="200"></canvas>
+            </div>
+
+            <!-- Pie Chart: Events by Plate -->
+            <div class="bg-white shadow rounded-lg p-4">
+                <h2 class="text-lg font-semibold mb-4">Events by Plate Number</h2>
+                <canvas id="plateChart" height="200"></canvas>
+            </div>
+
+            <!-- Line Chart: Events Over Time -->
+            <div class="bg-white shadow rounded-lg p-4">
+                <h2 class="text-lg font-semibold mb-4">Events Over Time (Hourly)</h2>
+                <canvas id="timeChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Tables Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Logs Table -->
+            <div class="bg-white shadow rounded-lg p-4">
+                <h2 class="text-lg font-semibold mb-4">Real-Time Logs</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="px-4 py-2">Plate Number</th>
+                                <th class="px-4 py-2">Event Type</th>
+                                <th class="px-4 py-2">Timestamp</th>
+                                <th class="px-4 py-2">Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Summary Table -->
+            <div class="bg-white shadow rounded-lg p-4">
+                <h2 class="text-lg font-semibold mb-4">Event Summary by Plate</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="px-4 py-2">Plate Number</th>
+                                <th class="px-4 py-2">Entries</th>
+                                <th class="px-4 py-2">Exits</th>
+                                <th class="px-4 py-2">Payments</th>
+                                <th class="px-4 py-2">Unauthorized Attempts</th>
+                                <th class="px-4 py-2">Errors</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
+
     <script>
+        // Chart instances
+        let eventTypeChart, plateChart, timeChart;
+
+        // Color palette
+        const colors = [
+            'rgba(59, 130, 246, 0.6)',  // Blue
+            'rgba(239, 68, 68, 0.6)',  // Red
+            'rgba(34, 197, 94, 0.6)',  // Green
+            'rgba(249, 115, 22, 0.6)', // Orange
+            'rgba(168, 85, 247, 0.6)'  // Purple
+        ];
+
         function fetchLogs() {
             fetch('/logs')
                 .then(response => response.json())
                 .then(data => {
-                    const tbody = document.getElementById('logsTableBody');
-                    tbody.innerHTML = '';
+                    // Update Logs Table
+                    const logsTbody = document.getElementById('logsTableBody');
+                    logsTbody.innerHTML = '';
                     data.forEach(log => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
@@ -38,7 +102,111 @@
                             <td class="border px-4 py-2">${log.event_timestamp}</td>
                             <td class="border px-4 py-2">${log.message}</td>
                         `;
-                        tbody.appendChild(row);
+                        logsTbody.appendChild(row);
+                    });
+
+                    // Prepare data for charts and summary table
+                    const eventTypes = ['Entry', 'Exit', 'Payment', 'Unauthorized Exit Attempt', 'Error'];
+                    const eventTypeCounts = eventTypes.map(type =>
+                        data.filter(log => log.event_type === type).length
+                    );
+
+                    const plates = [...new Set(data.map(log => log.plate_number))];
+                    const plateCounts = plates.map(plate =>
+                        data.filter(log => log.plate_number === plate).length
+                    );
+
+                    // Group events by hour
+                    const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0') + ':00');
+                    const eventsByHour = hours.map(hour => {
+                        const hourStart = new Date(`2025-06-02T${hour}:00:00`);
+                        const hourEnd = new Date(hourStart.getTime() + 60 * 60 * 1000);
+                        return data.filter(log => {
+                            const logTime = new Date(log.event_timestamp);
+                            return logTime >= hourStart && logTime < hourEnd;
+                        }).length;
+                    });
+
+                    // Update Summary Table
+                    const summaryTbody = document.getElementById('summaryTableBody');
+                    summaryTbody.innerHTML = '';
+                    plates.forEach(plate => {
+                        const entryCount = data.filter(log => log.plate_number === plate && log.event_type === 'Entry').length;
+                        const exitCount = data.filter(log => log.plate_number === plate && log.event_type === 'Exit').length;
+                        const paymentCount = data.filter(log => log.plate_number === plate && log.event_type === 'Payment').length;
+                        const unauthorizedCount = data.filter(log => log.plate_number === plate && log.event_type === 'Unauthorized Exit Attempt').length;
+                        const errorCount = data.filter(log => log.plate_number === plate && log.event_type === 'Error').length;
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="border px-4 py-2">${plate}</td>
+                            <td class="border px-4 py-2">${entryCount}</td>
+                            <td class="border px-4 py-2">${exitCount}</td>
+                            <td class="border px-4 py-2">${paymentCount}</td>
+                            <td class="border px-4 py-2">${unauthorizedCount}</td>
+                            <td class="border px-4 py-2">${errorCount}</td>
+                        `;
+                        summaryTbody.appendChild(row);
+                    });
+
+                    // Update Bar Chart (Events by Type)
+                    if (eventTypeChart) eventTypeChart.destroy();
+                    eventTypeChart = new Chart(document.getElementById('eventTypeChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: eventTypes,
+                            datasets: [{
+                                label: 'Number of Events',
+                                data: eventTypeCounts,
+                                backgroundColor: colors,
+                                borderColor: colors.map(c => c.replace('0.6', '1')),
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: { y: { beginAtZero: true, title: { display: true, text: 'Count' } } },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+
+                    // Update Pie Chart (Events by Plate)
+                    if (plateChart) plateChart.destroy();
+                    plateChart = new Chart(document.getElementById('plateChart'), {
+                        type: 'pie',
+                        data: {
+                            labels: plates,
+                            datasets: [{
+                                data: plateCounts,
+                                backgroundColor: colors,
+                                borderColor: colors.map(c => c.replace('0.6', '1')),
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            plugins: { legend: { position: 'right' } }
+                        }
+                    });
+
+                    // Update Line Chart (Events Over Time)
+                    if (timeChart) timeChart.destroy();
+                    timeChart = new Chart(document.getElementById('timeChart'), {
+                        type: 'line',
+                        data: {
+                            labels: hours,
+                            datasets: [{
+                                label: 'Events per Hour',
+                                data: eventsByHour,
+                                borderColor: colors[0].replace('0.6', '1'),
+                                backgroundColor: colors[0],
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: { beginAtZero: true, title: { display: true, text: 'Count' } },
+                                x: { title: { display: true, text: 'Hour' } }
+                            }
+                        }
                     });
                 })
                 .catch(error => console.error('Error fetching logs:', error));
