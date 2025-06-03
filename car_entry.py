@@ -71,6 +71,7 @@ def initialize_db():
                 entry_timestamp TIMESTAMP NOT NULL,
                 exit_timestamp TIMESTAMP,
                 amount NUMERIC(10, 2),
+                exited BOOLEAN NOT NULL DEFAULT FALSE,
                 CONSTRAINT chk_plate CHECK (plate_number ~ '^[A-Z]{2,3}[0-9]{3}[A-Z]$')
             )
         """)

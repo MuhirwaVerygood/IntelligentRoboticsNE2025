@@ -777,3 +777,43 @@
 2025-06-02 16:48:23.278050: Serial port closed
 2025-06-02 16:48:23.278050: Database connection closed
 2025-06-02 16:48:23.304279: Application terminated
+2025-06-02 17:14:06.806675: Database initialized
+2025-06-02 17:14:06.838719: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 17:14:06.838719: Connected to Arduino on COM5
+2025-06-02 17:14:09.686436: Entry system started
+2025-06-02 17:14:11.794971: Valid plate detected: RAF687D
+2025-06-02 17:14:11.838115: Logged event: Entry for RAF687D - Duplicate entry attempt for RAF687D
+2025-06-02 17:14:11.838115: Plate RAF687D already has active entry
+2025-06-02 17:14:12.153675: Application terminated
+2025-06-02 17:19:03.244604: Database initialized
+2025-06-02 17:19:03.277627: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 17:19:03.277627: Connected to Arduino on COM5
+2025-06-02 17:19:06.124185: Entry system started
+2025-06-02 17:19:57.722467: Serial port closed
+2025-06-02 17:19:57.723469: Database connection closed
+2025-06-02 17:19:57.735469: Application terminated
+2025-06-02 17:20:04.392128: Database initialized
+2025-06-02 17:20:04.423613: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 17:20:04.423613: Connected to Arduino on COM5
+2025-06-02 17:20:07.208474: Entry system started
+2025-06-02 17:20:09.153177: Valid plate detected: RAF687D
+2025-06-02 17:20:09.157199: Logged event: Entry for RAF687D - Duplicate entry attempt for RAF687D
+2025-06-02 17:20:09.157199: Plate RAF687D already has active entry
+2025-06-02 17:20:09.449882: Application terminated
+2025-06-02 17:23:54.076926: Database initialized
+2025-06-02 17:23:54.109475: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 17:23:54.109475: Connected to Arduino on COM5
+2025-06-02 17:23:56.931169: Entry system started
+2025-06-02 17:24:35.323603: Serial port closed
+2025-06-02 17:24:35.324605: Database connection closed
+2025-06-02 17:24:35.338605: Application terminated
+2025-06-02 17:24:41.167428: Database initialized
+2025-06-02 17:24:41.310035: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 17:24:41.310035: Connected to Arduino on COM5
+2025-06-02 17:24:44.087415: Entry system started
+2025-06-02 17:25:32.472493: Valid plate detected: RAF687D
+2025-06-02 17:25:32.517795: Logged event: Entry for RAF687D - Duplicate entry attempt for RAF687D
+2025-06-02 17:25:32.518733: Buzzer activated
+2025-06-02 17:25:34.817934: Serial port closed
+2025-06-02 17:25:34.817934: Database connection closed
+2025-06-02 17:25:34.833935: Application terminated
