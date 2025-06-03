@@ -90,6 +90,26 @@ def parse_arduino_data(line):
         print(f"[ERROR] Parsing error: {e}")
         return None, None
 
+def trigger_buzzer(ser):
+    try:
+        if ser and ser.is_open:
+            ser.write(b'2')
+            ser.flush()
+            print(f"[BUZZER] Buzzer activated")
+            with open("serial_log.txt", "a") as log_file:
+                log_file.write(f"{datetime.now()}: Buzzer activated\n")
+                log_file.flush()
+            time.sleep(1.5)  # Match Arduino's 3x(250ms on + 250ms off)
+            print(f"[BUZZER] Buzzer deactivated")
+            with open("serial_log.txt", "a") as log_file:
+                log_file.write(f"{datetime.now()}: Buzzer deactivated\n")
+                log_file.flush()
+    except serial.SerialException as e:
+        print(f"[ERROR] Failed to trigger buzzer: {e}")
+        with open("serial_log.txt", "a") as log_file:
+            log_file.write(f"{datetime.now()}: Failed to trigger buzzer: {e}\n")
+            log_file.flush()
+
 def process_payment(plate, balance, ser, conn):
     try:
         cursor = conn.cursor()
@@ -114,33 +134,35 @@ def process_payment(plate, balance, ser, conn):
             print(f"[PAYMENT] Insufficient balance: {balance} < {amount_due}")
             ser.write(b'I\n')
             ser.flush()
-            log_event(plate, "Payment", f"Insufficient balance for {plate}: {balance} < {amount_due}", conn)
+            log_event(plate, "Payment", f"Cannot process payment: {balance} < {amount_due} for {plate}", conn)
             with open("serial_log.txt", "a") as log_file:
                 log_file.write(f"{datetime.now()}: Sent: I\n")
                 log_file.flush()
+            trigger_buzzer(ser)
             cursor.close()
             return
 
         new_balance = balance - amount_due
         ser.reset_output_buffer()
         start_time = time.time()
-        print("[WAIT] Waiting for Arduino READY...")
+        print("[INFO] Waiting for Arduino READY...")
 
         while True:
             if ser.in_waiting:
                 arduino_response = ser.readline().decode().strip()
-                print(f"[ARDUINO] {arduino_response}")
+                print(f"[ARDUINO] Received: {arduino_response}")
                 with open("serial_log.txt", "a") as log_file:
                     log_file.write(f"{datetime.now()}: Received: {arduino_response}\n")
                     log_file.flush()
                 if arduino_response == "READY":
                     break
             if time.time() - start_time > 10:
-                print("[ERROR] Timeout waiting for Arduino READY")
-                log_event(plate, "Payment", f"Payment timeout for {plate}", conn)
+                print(f"[ERROR] Timeout waiting for Arduino READY")
+                log_event(plate, "Error", f"Payment timeout for {plate}: Arduino not ready", conn)
                 with open("serial_log.txt", "a") as log_file:
                     log_file.write(f"{datetime.now()}: Timeout waiting for READY\n")
                     log_file.flush()
+                trigger_buzzer(ser)
                 cursor.close()
                 return
             time.sleep(0.1)
@@ -153,7 +175,7 @@ def process_payment(plate, balance, ser, conn):
             log_file.flush()
 
         start_time = time.time()
-        print("[WAIT] Waiting for Arduino confirmation...")
+        print("[INFO] Waiting for Arduino confirmation...")
         while True:
             if ser.in_waiting:
                 confirm = ser.readline().decode().strip()
@@ -162,7 +184,7 @@ def process_payment(plate, balance, ser, conn):
                     log_file.write(f"{datetime.now()}: Received: {confirm}\n")
                     log_file.flush()
                 if "DONE" in confirm:
-                    print("[ARDUINO] Write confirmed")
+                    print("[INFO] Write confirmed")
                     cursor.execute(
                         "UPDATE parking_logs SET payment_status = TRUE, exit_timestamp = %s, amount = %s WHERE id = %s",
                         (exit_time, amount_due, entry_id)
@@ -177,11 +199,12 @@ def process_payment(plate, balance, ser, conn):
                         log_file.flush()
                     raise PaymentComplete(f"Payment completed for {plate}")
             if time.time() - start_time > 10:
-                print("[ERROR] Timeout waiting for confirmation")
-                log_event(plate, "Payment", f"Payment confirmation timeout for {plate}", conn)
+                print(f"[ERROR] Timeout waiting for Arduino confirmation")
+                log_event(plate, "Error", f"Payment confirmation timeout for {plate}", conn)
                 with open("serial_log.txt", "a") as log_file:
                     log_file.write(f"{datetime.now()}: Timeout waiting for confirmation\n")
                     log_file.flush()
+                trigger_buzzer(ser)
                 cursor.close()
                 return
             time.sleep(0.1)
