@@ -1232,3 +1232,29 @@
 2025-06-02 18:37:37.017876: Serial port closed
 2025-06-02 18:37:37.018972: Database connection closed
 2025-06-02 18:37:37.039990: Application terminated
+2025-06-02 18:41:13.209342: Database initialized
+2025-06-02 18:41:13.239834: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:41:13.240435: Connected to Arduino on COM5
+2025-06-02 18:41:16.066515: Entry system started
+2025-06-02 18:41:24.592143: Valid plate detected: RAF987N
+2025-06-02 18:41:24.595065: Image saved: plates\RAF987N_20250602_184124.jpg
+2025-06-02 18:41:25.684157: Valid plate detected: RAF987Y
+2025-06-02 18:41:25.728370: Logged event: Entry for RAF987Y - Duplicate entry attempt for RAF987Y
+2025-06-02 18:41:25.728370: Buzzer activated
+2025-06-02 18:41:27.229944: Buzzer deactivated
+2025-06-02 18:41:35.851676: Serial port closed
+2025-06-02 18:41:35.899781: Database connection closed
+2025-06-02 18:41:35.943815: Application terminated
+2025-06-02 18:41:56.596204: Database initialized
+2025-06-02 18:41:56.749521: Available ports: ['COM4 (USB Serial Device (COM4))', 'COM5 (USB Serial Device (COM5))']
+2025-06-02 18:41:56.750117: Connected to Arduino on COM5
+2025-06-02 18:42:02.535570: Exit system started
+2025-06-02 18:42:15.962464: Valid plate detected: RAF987Y
+2025-06-02 18:42:17.360058: Valid plate detected: RAF987Y
+2025-06-02 18:42:18.029321: Valid plate detected: RAF987Y
+2025-06-02 18:42:18.073549: Logged event: Unauthorized Exit Attempt for RAF987Y - Unpaid record for RAF987Y
+2025-06-02 18:42:18.074498: Buzzer activated
+2025-06-02 18:42:19.575318: Buzzer deactivated
+2025-06-02 18:42:29.421068: Serial port closed
+2025-06-02 18:42:29.421068: Database connection closed
+2025-06-02 18:42:29.441835: Application terminated

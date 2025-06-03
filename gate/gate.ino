@@ -8,7 +8,7 @@ const int blueLED = 5;
 const int servoPin = 6;
 const int gndPin1 = 7;
 const int gndPin2 = 8;
-const int buzzer = 12;
+const int buzzer = 11;
 
 // Globals
 Servo gateServo;
